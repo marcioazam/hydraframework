@@ -1,8 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\HydraFramework",
-    "\\HydraFramework\\Modulos"
+    "\\HydraFramework"
   ],
+  "SelectedNode": "\\HydraFramework\\BaseHydra.cs",
   "PreviewInSolutionExplorer": false
 }

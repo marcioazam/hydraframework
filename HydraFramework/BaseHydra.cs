@@ -220,7 +220,7 @@ namespace HydraFramework
             return retorno;
         }
 
-        public List<T> ConsultaEmLista<T>(string stringSQL, HydraParameters parametros = null) 
+        public List<T> ConsultaEmLista<T>(string stringSQL, string columns = "", HydraParameters parametros = null) 
         {
             List<T> lista = new List<T>();
             SqlConnection sqlConnection = new SqlConnection();
@@ -235,7 +235,14 @@ namespace HydraFramework
 
                     using (SqlDataReader dadosTabela = comando.ExecuteReader())
                     {
-                        lista = Popula.Lista<T>(dadosTabela);
+                        List<string> colunas = null;
+
+                        if (columns != "")
+                        {
+                            colunas = columns.Split(',').ToList();
+                        }
+
+                        lista = Popula.Lista<T>(dadosTabela, colunas);
                     }
                 }
             }
@@ -251,7 +258,7 @@ namespace HydraFramework
             return lista;
         }
             
-        public T ConsultaEmEntidade<T>(string stringSQL, HydraParameters parametros = null)
+        public T ConsultaEmEntidade<T>(string stringSQL, string columns = "", HydraParameters parametros = null)
         {
             T entidade;
             SqlConnection sqlConnection = new SqlConnection();
@@ -266,8 +273,14 @@ namespace HydraFramework
 
                     using (SqlDataReader dadosTabela = comando.ExecuteReader())
                     {
-                        
-                        entidade = Popula.Entidade<T>(dadosTabela);
+                        List<string> colunas = null;
+
+                        if (columns != "")
+                        {
+                            colunas = columns.Split(',').ToList();
+                        }
+
+                        entidade = Popula.Entidade<T>(dadosTabela, colunas);
                     }
                 }
             }
@@ -372,6 +385,24 @@ namespace HydraFramework
             }
 
             return dataTable;
+        }
+
+        public List<T> ConverteDataTableEmLista<T>(DataTable dataTable)
+        {
+            List<T> lista = new List<T>();
+
+            lista = Popula.DataTableEmList<T>(dataTable);
+
+            return lista;
+        }
+
+        public T ConverteDataTableEmEntidade<T>(DataTable dataTable)
+        {
+            T entidade;
+
+            entidade = Popula.DataTableEmEntidade<T>(dataTable);
+
+            return entidade;
         }
     }
 }

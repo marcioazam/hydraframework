@@ -10,24 +10,111 @@ namespace HydraFramework.Modulos
 {
     internal class Popula
     {
-        public static T Entidade<T>(SqlDataReader dadosTabela)
+        public static List<T> DataTableEmList<T>(DataTable dataTable)
+        {
+            var lista = new List<T>();
+            var tipo = typeof(T);
+
+            List<string> colunas = dataTable.Columns.Cast<DataColumn>().Select(x=> x.ColumnName).ToList();
+            PropertyInfo[] propertyInfo = DefineColunasCarregadas(colunas, tipo);
+
+            T entidade;
+
+            foreach (var row in dataTable.Rows.Cast<DataRow>())
+            {
+                entidade = CriaIstancia<T>(tipo);
+
+                if (propertyInfo.Count() > 0)
+                {
+                    foreach (var property in propertyInfo)
+                    {
+                        var nomeColuna = Valida.NomeColuna(property);
+
+                        var valor = row[nomeColuna] != DBNull.Value ? row[nomeColuna] : null;
+
+                        property.SetValue(entidade, valor, null);
+                    }
+                }
+                else
+                {
+                    var valor = row[0] != DBNull.Value ? row[0] : null;
+
+                    object genericoTipificado = valor;
+
+                    entidade = (T)Convert.ChangeType(genericoTipificado, typeof(T));
+                }
+
+                lista.Add(entidade);
+            }
+
+            return lista;
+        }
+
+        public static T DataTableEmEntidade<T>(DataTable dataTable)
         {
             var tipo = typeof(T);
 
-            PropertyInfo[] propertyInfo = tipo.GetProperties().Where(x => Valida.Coluna(x) != null || Valida.PrimaryKey(x) != null).ToArray();
+            List<string> colunas = dataTable.Columns.Cast<DataColumn>().Select(x => x.ColumnName).ToList();
+            PropertyInfo[] propertyInfo = DefineColunasCarregadas(colunas, tipo);
+
+            T entidade;
+
+            foreach (var row in dataTable.Rows.Cast<DataRow>())
+            {
+                entidade = CriaIstancia<T>(tipo);
+
+                if (propertyInfo.Count() > 0)
+                {
+                    foreach (var property in propertyInfo)
+                    {
+                        var nomeColuna = Valida.NomeColuna(property);
+
+                        var valor = row[nomeColuna] != DBNull.Value ? row[nomeColuna] : null;
+
+                        property.SetValue(entidade, valor, null);
+                    }
+                }
+                else
+                {
+                    var valor = row[0] != DBNull.Value ? row[0] : null;
+
+                    object genericoTipificado = valor;
+
+                    entidade = (T)Convert.ChangeType(genericoTipificado, typeof(T));
+                }
+
+                return entidade;
+            }
+
+            return (T)Activator.CreateInstance<T>();
+        }
+
+        private static T CriaIstancia<T>(Type tipo)
+        {
+            T entidade;
+            if (tipo.Name == "String")
+            {
+                entidade = (T)Assembly.GetExecutingAssembly().CreateInstance(tipo.FullName);
+            }
+            else
+            {
+                entidade = (T)Activator.CreateInstance(tipo);
+            }
+
+            return entidade;
+        }
+
+        public static T Entidade<T>(SqlDataReader dadosTabela, List<string> colunas = null)
+        {
+            var tipo = typeof(T);
+
+            PropertyInfo[] propertyInfo = DefineColunasCarregadas(colunas, tipo);
 
             T entidade;
 
             while (dadosTabela.Read())
             {
-                if (tipo.Name == "String")
-                {
-                    entidade = (T)Assembly.GetExecutingAssembly().CreateInstance(tipo.FullName);
-                }
-                else
-                {
-                    entidade = (T)Activator.CreateInstance(tipo);
-                }
+                entidade = CriaIstancia<T>(tipo);
 
                 if (propertyInfo.Count() > 0)
                 {
@@ -55,25 +142,18 @@ namespace HydraFramework.Modulos
             return (T)Activator.CreateInstance<T>();
         }
 
-        public static List<T> Lista<T>(SqlDataReader dadosTabela) 
+        public static List<T> Lista<T>(SqlDataReader dadosTabela, List<string> colunas = null)
         {
             var lista = new List<T>();
             var tipo = typeof(T);
 
-            PropertyInfo[] propertyInfo = tipo.GetProperties().Where(x => Valida.Coluna(x) != null || Valida.PrimaryKey(x) != null).ToArray();
+            PropertyInfo[] propertyInfo = DefineColunasCarregadas(colunas, tipo);
 
             T entidade;
 
             while (dadosTabela.Read())
             {
-                if (tipo.Name == "String")
-                {
-                    entidade = (T)Assembly.GetExecutingAssembly().CreateInstance(tipo.FullName);
-                }
-                else
-                {
-                    entidade = (T)Activator.CreateInstance(tipo);
-                }
+                entidade = CriaIstancia<T>(tipo);
 
                 if (propertyInfo.Count() > 0)
                 {
@@ -99,6 +179,18 @@ namespace HydraFramework.Modulos
             }
 
             return lista;
+        }
+
+        private static PropertyInfo[] DefineColunasCarregadas(List<string> colunas, Type tipo)
+        {
+            PropertyInfo[] propertyInfo = tipo.GetProperties().Where(x => Valida.Coluna(x) != null || Valida.PrimaryKey(x) != null).ToArray();
+
+            if (colunas != null && colunas[0] != "*")
+            {
+                propertyInfo = propertyInfo.Where(x => colunas.Contains(x.Name)).ToArray();
+            }
+
+            return propertyInfo;
         }
 
         public static object Objeto(SqlDataReader dadosTabela, object entidade, Type tipo)
@@ -205,30 +297,35 @@ namespace HydraFramework.Modulos
         public static DataTable DataTable(SqlDataReader dadosTabela)
         {
             DataTable esquemaTabela = dadosTabela.GetSchemaTable();
-            DataTable dataTable = new DataTable();
-            DataColumn dataColumn;
-            DataRow dataRow;
 
-            for (int i = 0; i < esquemaTabela.Rows.Count; i++)
+            DataTable dataTable = new DataTable();
+            List<DataColumn> listaColumns = new List<DataColumn>();
+
+            if (esquemaTabela != null)
             {
-                dataColumn = new DataColumn();
-                if (!dataTable.Columns.Contains(esquemaTabela.Rows[i]["ColumnName"].ToString()))
+                foreach (DataRow dataRow in esquemaTabela.Rows)
                 {
-                    dataColumn.ColumnName = esquemaTabela.Rows[i]["ColumnName"].ToString();
-                    dataColumn.Unique = Convert.ToBoolean(esquemaTabela.Rows[i]["IsUnique"]);
-                    dataColumn.AllowDBNull = Convert.ToBoolean(esquemaTabela.Rows[i]["AllowDBNull"]);
-                    dataColumn.ReadOnly = Convert.ToBoolean(esquemaTabela.Rows[i]["IsReadOnly"]);
-                    dataTable.Columns.Add(dataColumn);
+                    string columnName = dataRow["ColumnName"].ToString();
+
+                    DataColumn column = new DataColumn(columnName, (Type)(dataRow["DataType"]));
+                    column.Unique = (bool)dataRow["IsUnique"];
+                    column.AllowDBNull = (bool)dataRow["AllowDBNull"];
+                    column.AutoIncrement = (bool)dataRow["IsAutoIncrement"];
+
+                    listaColumns.Add(column);
+                    dataTable.Columns.Add(column);
                 }
             }
 
             while (dadosTabela.Read())
             {
-                dataRow = dataTable.NewRow();
-                for (int i = 0; i < esquemaTabela.Rows.Count; i++)
+                DataRow dataRow = dataTable.NewRow();
+
+                for (int i = 0; i < listaColumns.Count; i++)
                 {
-                    dataRow[i] = dadosTabela.GetValue(i);
+                    dataRow[listaColumns[i]] = dadosTabela[i];
                 }
+
                 dataTable.Rows.Add(dataRow);
             }
 

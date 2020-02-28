@@ -36,7 +36,7 @@ namespace HydraFramework
 
         /// <summary>Carrega uma tabela do banco de dados, convertendo a classe na tabela desejada. <br></br>Retorna a tabela convertida em uma lista da mesma classe.</summary>
         /// <param name="top">Define limite de linhas do Select</param>
-        /// <param name="columns">Define colunas a serem selecionadas</param>
+        /// <param name="columns">Define colunas a serem selecionadas, usando uma ',' para serapar cada coluna</param>
         /// <param name="condition">Inclusão de condições extras, como por exemplo: WHERE, GROUP BY, HAVING e ORDER BY</param>
         public List<T> Load<T>(int? top = null, string columns = "*", string condition = "") where T : new()
         {
@@ -45,7 +45,7 @@ namespace HydraFramework
 
             Manipula.Consulta(out comandoSQL, Tipo, TipoConsulta.Select, top, columns, condicoes: condition);
 
-            var lista = BaseHydra.ConsultaEmLista<T>(comandoSQL);
+            var lista = BaseHydra.ConsultaEmLista<T>(comandoSQL, columns);
 
             return lista;
         }
@@ -61,7 +61,7 @@ namespace HydraFramework
 
             Manipula.Consulta(out comandoSQL, Tipo, TipoConsulta.Select, 1, columns, condicoes: condition);
 
-            var entidade = BaseHydra.ConsultaEmEntidade<T>(comandoSQL);
+            var entidade = BaseHydra.ConsultaEmEntidade<T>(comandoSQL, columns);
 
             return entidade;
         }
@@ -71,7 +71,9 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public bool ExecuteQuery(string queryString, HydraParameters parametros = null)
         {
-            return BaseHydra.Consulta(queryString, parametros);
+            bool resultado = BaseHydra.Consulta(queryString, parametros);
+
+            return resultado;
         }
 
         /// <summary>Executa uma consulta personalizada no banco de dados. <br></br>Retorna a consulta convertida em uma lista da classe designada.</summary>
@@ -79,7 +81,9 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public List<T> ReturnQuery<T>(string queryString, HydraParameters parameters = null)
         {
-            var lista = BaseHydra.ConsultaEmLista<T>(queryString);
+            DataTable dataTable = BaseHydra.ConsultaEmDataTable(queryString);
+
+            var lista = BaseHydra.ConverteDataTableEmLista<T>(dataTable);
 
             return lista;
         }
@@ -89,7 +93,9 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public T ReturnQuerySingle<T>(string queryString, HydraParameters parameters = null) 
         {
-            var entidade = BaseHydra.ConsultaEmEntidade<T>(queryString);
+            DataTable dataTable = BaseHydra.ConsultaEmDataTable(queryString);
+
+            var entidade = BaseHydra.ConverteDataTableEmEntidade<T>(dataTable);
 
             return entidade;
         }
