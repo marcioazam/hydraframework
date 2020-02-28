@@ -1,0 +1,20 @@
+C:\Users\marci\source\repos\HydraFramework\HydraFramework\obj\Debug\HydraFramework.csprojAssemblyReference.cache
+C:\Users\marci\source\repos\HydraFramework\HydraFramework\obj\Debug\HydraFramework.csproj.CoreCompileInputs.cache
+C:\Users\marci\source\repos\HydraFramework\HydraFramework\bin\Debug\HydraFramework.dll
+C:\Users\marci\source\repos\HydraFramework\HydraFramework\bin\Debug\HydraFramework.pdb
+C:\Users\marci\source\repos\HydraFramework\HydraFramework\obj\Debug\HydraFramework.dll
+C:\Users\marci\source\repos\HydraFramework\HydraFramework\obj\Debug\HydraFramework.pdb
+C:\Users\rossi\OneDrive\Arquivos Temporários\Hydra\HydraFramework\bin\Debug\HydraFramework.dll
+C:\Users\rossi\OneDrive\Arquivos Temporários\Hydra\HydraFramework\bin\Debug\HydraFramework.pdb
+C:\Users\rossi\OneDrive\Arquivos Temporários\Hydra\HydraFramework\obj\Debug\HydraFramework.csprojAssemblyReference.cache
+C:\Users\rossi\OneDrive\Arquivos Temporários\Hydra\HydraFramework\obj\Debug\HydraFramework.csproj.CoreCompileInputs.cache
+C:\Users\rossi\OneDrive\Arquivos Temporários\Hydra\HydraFramework\obj\Debug\HydraFramework.dll
+C:\Users\rossi\OneDrive\Arquivos Temporários\Hydra\HydraFramework\obj\Debug\HydraFramework.pdb
+C:\Users\rossi\source\repos\contreiras95\HydraFramework\HydraFramework\bin\Debug\HydraFramework.dll
+C:\Users\rossi\source\repos\contreiras95\HydraFramework\HydraFramework\bin\Debug\HydraFramework.pdb
+C:\Users\rossi\source\repos\contreiras95\HydraFramework\HydraFramework\obj\Debug\HydraFramework.dll
+C:\Users\rossi\source\repos\contreiras95\HydraFramework\HydraFramework\obj\Debug\HydraFramework.pdb
+C:\Users\rossi\Source\Repos\contreiras95\HydraFramework\HydraFramework\bin\Debug\System.Threading.dll
+C:\Users\rossi\Source\Repos\contreiras95\HydraFramework\HydraFramework\bin\Debug\System.Threading.xml
+C:\Users\rossi\Source\Repos\contreiras95\HydraFramework\HydraFramework\obj\Debug\HydraFramework.csproj.CopyComplete
+C:\Users\rossi\Source\Repos\contreiras95\HydraFramework\HydraFramework\obj\Debug\HydraFramework.csprojAssemblyReference.cache
