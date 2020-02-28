@@ -38,14 +38,15 @@ namespace HydraFramework
         /// <param name="top">Define limite de linhas do Select</param>
         /// <param name="columns">Define colunas a serem selecionadas, usando uma ',' para serapar cada coluna</param>
         /// <param name="condition">Inclusão de condições extras, como por exemplo: WHERE, GROUP BY, HAVING e ORDER BY</param>
-        public List<T> Load<T>(int? top = null, string columns = "*", string condition = "") where T : new()
+        /// <param name="parameters">Paramêtros a serem usados na consulta</param>
+        public List<T> Load<T>(int? top = null, string columns = "*", string condition = "", HydraParameters parameters = null) where T : new()
         {
             string comandoSQL;
             Tipo = typeof(T);
 
             Manipula.Consulta(out comandoSQL, Tipo, TipoConsulta.Select, top, columns, condicoes: condition);
 
-            var lista = BaseHydra.ConsultaEmLista<T>(comandoSQL, columns);
+            var lista = BaseHydra.ConsultaEmLista<T>(comandoSQL, columns, parameters);
 
             return lista;
         }
@@ -54,14 +55,14 @@ namespace HydraFramework
         /// <param name="top">Define limite de linhas do Select</param>
         /// <param name="columns">Define colunas a serem selecionadas</param>
         /// <param name="condition">Inclusão de condições extras, como por exemplo: WHERE, GROUP BY, HAVING e ORDER BY</param>
-        public T LoadSingle<T>( string columns = "*", string condition = "") where T : new()
+        public T LoadSingle<T>( string columns = "*", string condition = "", HydraParameters parameters = null) where T : new()
         {
             string comandoSQL;
             Tipo = typeof(T);
 
             Manipula.Consulta(out comandoSQL, Tipo, TipoConsulta.Select, 1, columns, condicoes: condition);
 
-            var entidade = BaseHydra.ConsultaEmEntidade<T>(comandoSQL, columns);
+            var entidade = BaseHydra.ConsultaEmEntidade<T>(comandoSQL, columns, parameters);
 
             return entidade;
         }
@@ -81,7 +82,7 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public List<T> ReturnQuery<T>(string queryString, HydraParameters parameters = null)
         {
-            DataTable dataTable = BaseHydra.ConsultaEmDataTable(queryString);
+            DataTable dataTable = BaseHydra.ConsultaEmDataTable(queryString, parameters);
 
             var lista = BaseHydra.ConverteDataTableEmLista<T>(dataTable);
 
@@ -93,7 +94,7 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public T ReturnQuerySingle<T>(string queryString, HydraParameters parameters = null) 
         {
-            DataTable dataTable = BaseHydra.ConsultaEmDataTable(queryString);
+            DataTable dataTable = BaseHydra.ConsultaEmDataTable(queryString, parameters);
 
             var entidade = BaseHydra.ConverteDataTableEmEntidade<T>(dataTable);
 
@@ -105,7 +106,7 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public List<HydraTuple<T1, T2>> ReturnQuery<T1, T2>(string queryString, HydraParameters parameters = null) 
         {
-            var lista = BaseHydra.ConsultaEmLista<T1, T2>(queryString);
+            var lista = BaseHydra.ConsultaEmLista<T1, T2>(queryString, parameters);
 
             return lista;
         }
@@ -115,7 +116,7 @@ namespace HydraFramework
         /// <param name="parameters">Paramêtros a serem usados na consulta</param>
         public List<HydraTuple<T1, T2, T3>> ReturnQuery<T1, T2, T3>(string queryString, HydraParameters parameters = null)
         {
-            var lista = BaseHydra.ConsultaEmLista<T1, T2, T3>(queryString);
+            var lista = BaseHydra.ConsultaEmLista<T1, T2, T3>(queryString, parameters);
 
             return lista;
         }
@@ -124,9 +125,9 @@ namespace HydraFramework
         /// <param name="top">Define limite de linhas do Select</param>
         /// <param name="columns">Define colunas a serem selecionadas</param>
         /// <param name="condition">Inclusão de condições extras, como por exemplo: WHERE, GROUP BY, HAVING e ORDER BY</param>
-        public DataTable LoadFromDataTable(string queryString)
+        public DataTable LoadFromDataTable(string queryString, HydraParameters parameters = null)
         {
-            var dataTable = BaseHydra.ConsultaEmDataTable(queryString);
+            var dataTable = BaseHydra.ConsultaEmDataTable(queryString, parameters);
 
             return dataTable;
         } 

@@ -11,7 +11,7 @@ namespace HydraFramework
 
         public void Add(string nameParameter, object valor)
         {
-            SqlParameter.Add(new SqlParameter("@" + nameParameter, valor));
+            SqlParameter.Add(new SqlParameter("@" + nameParameter.Replace("@",""), valor));
         }
 
         public void AddCustom(SqlParameter sqlParameter)

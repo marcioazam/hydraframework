@@ -358,7 +358,7 @@ namespace HydraFramework
             return lista;
         }
 
-        public DataTable ConsultaEmDataTable(string stringSQL)
+        public DataTable ConsultaEmDataTable(string stringSQL, HydraParameters parametros = null)
         {
             DataTable dataTable = new DataTable();
             SqlConnection sqlConnection = new SqlConnection();
@@ -369,6 +369,8 @@ namespace HydraFramework
 
                 using (SqlCommand comando = new SqlCommand(stringSQL, sqlConnection))
                 {
+                    Popula.Parametros(parametros, comando, false);
+
                     using (SqlDataReader dadosTabela = comando.ExecuteReader())
                     {
                         dataTable = Popula.DataTable(dadosTabela);
