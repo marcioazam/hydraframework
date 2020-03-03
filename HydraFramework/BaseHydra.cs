@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Data.Linq;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
-using HydraFramework.Modulos;
-using static HydraFramework.Modulos.Carrega;
-using static HydraFramework.Modulos.Manipula;
+using HydraFramework.Extensions;
+using HydraFramework.Modules;
+using static HydraFramework.Modules.Carrega;
+using static HydraFramework.Modules.Manipula;
 
 namespace HydraFramework
 {
@@ -18,6 +20,11 @@ namespace HydraFramework
         public BaseHydra(string conexao)
         {
             Conexao = conexao;
+        }
+
+        public BaseHydra(DataContext contexto)
+        {
+            //Conexao = contexto.;
         }
 
         public SqlConnection AbrirBanco()
@@ -47,7 +54,7 @@ namespace HydraFramework
 
             PropertyInfo PK = tipo.GetProperties().Where(x => Valida.PrimaryKey(x) != null).FirstOrDefault();
             PropertyInfo[] colunas = tipo.GetProperties().Where(x => Valida.Coluna(x) != null).ToArray();
-            Dictionary<PropriedadePK, object> propriedadesPK = Carrega.InfoPrimaryKey(entidade, tipo, hydraParametros, PK);
+            Dictionary<PropriedadePK, object> propriedadesPK = Carrega.InfoPrimaryKey(entidade, tipo, PK, hydraParametros);
             List<string> NomeColunas = Carrega.Parametros(entidade, tipo, hydraParametros, colunas);
 
             SqlConnection sqlConnection = new SqlConnection();
@@ -150,7 +157,7 @@ namespace HydraFramework
             HydraParameters hydraParametros = new HydraParameters();
 
             PropertyInfo PK = tipo.GetProperties().Where(x => Valida.PrimaryKey(x) != null).FirstOrDefault();
-            Dictionary<PropriedadePK, object> propriedadesPK = Carrega.InfoPrimaryKey(entidade, tipo, hydraParametros, PK);
+            Dictionary<PropriedadePK, object> propriedadesPK = Carrega.InfoPrimaryKey(entidade, tipo, PK, hydraParametros);
             
             if (propriedadesPK != null)
             {
@@ -220,7 +227,7 @@ namespace HydraFramework
             return retorno;
         }
 
-        public List<T> ConsultaEmLista<T>(string stringSQL, string columns = "", HydraParameters parametros = null) 
+        public List<T> ConsultaLista<T>(string stringSQL, string columns = "", HydraParameters parametros = null)
         {
             List<T> lista = new List<T>();
             SqlConnection sqlConnection = new SqlConnection();
@@ -258,7 +265,7 @@ namespace HydraFramework
             return lista;
         }
             
-        public T ConsultaEmEntidade<T>(string stringSQL, string columns = "", HydraParameters parametros = null)
+        public T ConsultaEntidade<T>(string stringSQL, string columns = "", HydraParameters parametros = null)
         {
             T entidade;
             SqlConnection sqlConnection = new SqlConnection();
@@ -296,7 +303,84 @@ namespace HydraFramework
             return entidade;
         }
 
-        public List<HydraTuple<T1, T2>> ConsultaEmLista<T1, T2>(string stringSQL, HydraParameters parametros = null)
+        public List<object> ConsultaLista(object entidade, string stringSQL, string columns = "", HydraParameters parametros = null)
+        {
+            List<object> lista = new List<object>();
+            SqlConnection sqlConnection = new SqlConnection();
+            Type tipo = entidade.GetType();
+
+            try
+            {
+                sqlConnection = AbrirBanco();
+
+                using (SqlCommand comando = new SqlCommand(stringSQL, sqlConnection))
+                {
+                    Popula.Parametros(parametros, comando, false);
+
+                    using (SqlDataReader dadosTabela = comando.ExecuteReader())
+                    {
+                        List<string> colunas = null;
+
+                        if (columns != "")
+                        {
+                            colunas = columns.Split(',').ToList();
+                        }
+
+                        lista = Popula.ListaObjeto(dadosTabela, entidade, tipo, colunas);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                FecharBanco(sqlConnection);
+            }
+
+            return lista;
+        }
+
+        public object ConsultaEntidades(object entidade, string stringSQL, string columns = "", HydraParameters parametros = null)
+        {
+            SqlConnection sqlConnection = new SqlConnection();
+            Type tipo = entidade.GetType();
+
+            try
+            {
+                sqlConnection = AbrirBanco();
+
+                using (SqlCommand comando = new SqlCommand(stringSQL, sqlConnection))
+                {
+                    Popula.Parametros(parametros, comando, false);
+
+                    using (SqlDataReader dadosTabela = comando.ExecuteReader())
+                    {
+                        List<string> colunas = null;
+
+                        if (columns != "")
+                        {
+                            colunas = columns.Split(',').ToList();
+                        }
+
+                        entidade = Popula.Objeto(dadosTabela, entidade, tipo, colunas);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                FecharBanco(sqlConnection);
+            }
+
+            return entidade;
+        }
+
+        public List<HydraTuple<T1, T2>> ConsultaLista<T1, T2>(string stringSQL, HydraParameters parametros = null)
         {
             List<HydraTuple<T1, T2>> lista = new List<HydraTuple<T1, T2>>();
             SqlConnection sqlConnection = new SqlConnection();
@@ -327,7 +411,7 @@ namespace HydraFramework
             return lista;
         }
 
-        public List<HydraTuple<T1, T2, T3>> ConsultaEmLista<T1, T2, T3>(string stringSQL, HydraParameters parametros = null)
+        public List<HydraTuple<T1, T2, T3>> ConsultaLista<T1, T2, T3>(string stringSQL, HydraParameters parametros = null)
         {
             List<HydraTuple<T1, T2, T3>> lista = new List<HydraTuple<T1, T2, T3>>();
             SqlConnection sqlConnection = new SqlConnection();

@@ -3,9 +3,9 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace HydraFramework.Modulos
+namespace HydraFramework.Modules
 {
-    internal class Valida
+    static internal class Valida
     {
         public static object PrimaryKey(PropertyInfo propriedade)
         {
@@ -14,6 +14,24 @@ namespace HydraFramework.Modulos
             var attributoPK = atributos.Where(x => x.GetType().Name == "PKAttribute").FirstOrDefault();
 
             return attributoPK;
+        }
+
+        public static object AutoJoin(PropertyInfo propriedade)
+        {
+            var atributos = propriedade.GetCustomAttributes(true).ToList();
+
+            var attributoColuna = atributos.Where(x => x.GetType().Name == "AutoJoinAttribute").FirstOrDefault();
+
+            return attributoColuna;
+        }
+
+        public static object ForeignKey(PropertyInfo propriedade)
+        {
+            var atributos = propriedade.GetCustomAttributes(true).ToList();
+
+            var attributoColuna = atributos.Where(x => x.GetType().Name == "FKAttribute").FirstOrDefault();
+
+            return attributoColuna;
         }
 
         public static object Coluna(PropertyInfo propriedade)
@@ -49,12 +67,24 @@ namespace HydraFramework.Modulos
         public static string NomeColuna(MemberInfo membro)
         {
             var dadosColuna = (ColumnAttribute)Attribute.GetCustomAttribute(membro, typeof(ColumnAttribute));
+            var dadosFK = (FKAttribute)Attribute.GetCustomAttribute(membro, typeof(FKAttribute));
 
-            if(dadosColuna != null)
+            if (dadosColuna != null)
             {
                 if (dadosColuna.Name != "")
                 {
                     return dadosColuna.Name;
+                }
+                else
+                {
+                    return membro.Name;
+                }
+            }
+            else if(dadosFK != null)
+            {
+                if (dadosFK.Name != "")
+                {
+                    return dadosFK.Name;
                 }
                 else
                 {

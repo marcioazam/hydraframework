@@ -5,7 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 
-namespace HydraFramework.Modulos
+namespace HydraFramework.Modules
 {
     internal class Carrega
     {
@@ -73,7 +73,7 @@ namespace HydraFramework.Modulos
             return listaNomeColunas;
         }
 
-        public static Dictionary<PropriedadePK, object> InfoPrimaryKey(object entidade, Type tipo, HydraParameters parametros, PropertyInfo PK)
+        public static Dictionary<PropriedadePK, object> InfoPrimaryKey(object entidade, Type tipo, PropertyInfo PK, HydraParameters parametros = null)
         {
             Dictionary<PropriedadePK, object> keyValues = null;
             
@@ -83,7 +83,10 @@ namespace HydraFramework.Modulos
                 var nomeColuna = keyValues[PropriedadePK.Nome];
                 var valor = keyValues[PropriedadePK.Valor];
 
-                parametros.AddPK(PK.Name, valor);
+                if(parametros != null)
+                {
+                    parametros.AddPK(PK.Name, valor);
+                }
             }
 
             return keyValues;
