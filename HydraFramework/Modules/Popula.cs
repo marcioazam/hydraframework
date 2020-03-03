@@ -1,12 +1,15 @@
-﻿using HydraFramework.Modulos;
+﻿using HydraFramework.Attributes;
+using HydraFramework.Extensions;
+using HydraFramework.Modules;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
+using static HydraFramework.Modules.Manipula;
 
-namespace HydraFramework.Modulos
+namespace HydraFramework.Modules
 {
     internal class Popula
     {
@@ -183,7 +186,7 @@ namespace HydraFramework.Modulos
 
         private static PropertyInfo[] DefineColunasCarregadas(List<string> colunas, Type tipo)
         {
-            PropertyInfo[] propertyInfo = tipo.GetProperties().Where(x => Valida.Coluna(x) != null || Valida.PrimaryKey(x) != null).ToArray();
+            PropertyInfo[] propertyInfo = tipo.GetProperties().Where(x => Valida.Coluna(x) != null || Valida.PrimaryKey(x) != null || Valida.ForeignKey(x) != null).ToArray();
 
             if (colunas != null && colunas[0] != "*")
             {
@@ -193,9 +196,36 @@ namespace HydraFramework.Modulos
             return propertyInfo;
         }
 
-        public static object Objeto(SqlDataReader dadosTabela, object entidade, Type tipo)
+        public static List<object> ListaObjeto(SqlDataReader dadosTabela, object entidade, Type tipo, List<string> colunas = null)
         {
-            PropertyInfo[] propertyInfo = tipo.GetProperties().Where(x => Valida.Coluna(x) != null || Valida.PrimaryKey(x) != null).ToArray();
+            PropertyInfo[] propertyInfo = DefineColunasCarregadas(colunas, tipo);
+            var lista = new List<object>();
+
+            if (propertyInfo.Count() > 0)
+            {
+                while (dadosTabela.Read())
+                {
+                    entidade = Activator.CreateInstance(tipo);
+
+                    foreach (var property in propertyInfo)
+                    {
+                        var nomeColuna = Valida.NomeColuna(property);
+
+                        var valor = dadosTabela[nomeColuna] != DBNull.Value ? dadosTabela[nomeColuna] : null;
+
+                        property.SetValue(entidade, valor, null);
+                    }
+
+                    lista.Add(entidade);
+                }
+            }
+
+            return lista;
+        }
+
+        public static object Objeto(SqlDataReader dadosTabela, object entidade, Type tipo, List<string> colunas = null)
+        {
+            PropertyInfo[] propertyInfo = DefineColunasCarregadas(colunas, tipo);
 
             if (propertyInfo.Count() > 0)
             {
@@ -213,7 +243,7 @@ namespace HydraFramework.Modulos
             }
 
             return entidade;
-        }
+        }      
 
         public static List<HydraTuple<T1, T2>> ListaDuasTuple<T1, T2>(SqlDataReader dadosTabela) 
         {

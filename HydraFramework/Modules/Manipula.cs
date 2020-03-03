@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-namespace HydraFramework.Modulos
+namespace HydraFramework.Modules
 {
     internal class Manipula
     {
