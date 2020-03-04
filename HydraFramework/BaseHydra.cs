@@ -15,21 +15,16 @@ namespace HydraFramework
 {
     internal class BaseHydra
     {
-        private string Conexao { get; set; } = "";
-
-        public BaseHydra(string conexao)
-        {
-            Conexao = conexao;
-        }
+        private DataContext Conexao { get; set; }
 
         public BaseHydra(DataContext contexto)
         {
-            //Conexao = contexto.;
+            Conexao = contexto;
         }
 
         public SqlConnection AbrirBanco()
         {
-            SqlConnection conexao = new SqlConnection(Conexao);
+            SqlConnection conexao = new SqlConnection();
             conexao.Open();
 
             return conexao;

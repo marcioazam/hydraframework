@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Linq;
 using static HydraFramework.Modules.Manipula;
 
 namespace HydraFramework
@@ -11,7 +12,7 @@ namespace HydraFramework
         private Type Tipo;
         private readonly BaseHydra BaseHydra;
 
-        public Hydra(string conexao = "")
+        public Hydra(DataContext conexao)
         {
             BaseHydra = new BaseHydra(conexao);
         }

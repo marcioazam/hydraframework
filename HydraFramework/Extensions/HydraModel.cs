@@ -82,7 +82,7 @@ namespace HydraFramework.Extensions
 
         protected List<T> AutoJoin<T>()
         {
-            Hydra hydra = new Hydra(ConfigurationManager.ConnectionStrings[0].ConnectionString);
+            Hydra hydra = new Hydra(new DataContext(""));
 
             string chaveEstrangeiraNome = GetChaveEstrangeira<T>().Name;
             object valorChavePrimaria = propriedadesPK[PropriedadePK.Valor];
